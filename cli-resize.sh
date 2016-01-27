@@ -7,7 +7,8 @@ APPLICATION="${1}"  #engradepro
 ENVIRONMENT="${2}"  #qastg
 FUNCTION="${3}"     #app
 
-aws ec2 describe-instances                    \
+
+runner="$(aws ec2 describe-instances          \
 --region us-east-1                            \
 --profile $ENV                                \
 --filters                                     \
@@ -15,4 +16,6 @@ aws ec2 describe-instances                    \
   "Name=tag:Environment,Values=$ENVIRONMENT"  \
   "Name=tag:Function,Values=$FUNCTION"        \
 --query 'Reservations[].Instances[].[PrivateIpAddress,InstanceId,Tags[?Key==`Name`].Value[]]' \
---output text | sed '$!N;s/\n/ /'
+--output text | sed '$!N;s/\n/ /')"
+
+echo $runner |egrep -o '\S+\s+\S+\s+\S+'
