@@ -19,9 +19,11 @@ instances="$(aws ec2 describe-instances       \
 --query 'Reservations[].Instances[].[PrivateIpAddress,InstanceId,Tags[?Key==`Name`].Value[]]' \
 --output text | sed '$!N;s/\n/ /')"
 
+
 echo -e "\nInstances found:"
 echo $INSTANCES |egrep -o '\S+\s+\S+\s+\S+'
 echo
+
 
 read -r -p "Continue? [y/N] " response
 case $response in
@@ -49,6 +51,7 @@ for instanceId in $(aws ec2 describe-instances --region $AWS_REG --profile $AWS_
   cat /tmp/instance.log | while read ELB; do
     aws elb deregister-instances-from-load-balancer --load-balancer-name $ELB --instances $instanceId
   done
+
 
   echo "[info] Stopping ${instanceId}"
   aws ec2 stop-instances --instance-ids $instanceId --region $AWS_REG
