@@ -7,8 +7,7 @@ APPLICATION="${1}"  #engradepro
 ENVIRONMENT="${2}"  #qastg
 FUNCTION="${3}"     #app
 
-
-runner="$(aws ec2 describe-instances          \
+instances="$(aws ec2 describe-instances       \
 --region us-east-1                            \
 --profile $ENV                                \
 --filters                                     \
@@ -18,4 +17,19 @@ runner="$(aws ec2 describe-instances          \
 --query 'Reservations[].Instances[].[PrivateIpAddress,InstanceId,Tags[?Key==`Name`].Value[]]' \
 --output text | sed '$!N;s/\n/ /')"
 
-echo $runner |egrep -o '\S+\s+\S+\s+\S+'
+echo -e "\nInstances found:"
+echo $instances |egrep -o '\S+\s+\S+\s+\S+'
+
+read -r -p "Continue? [y/N] " response
+case $response in
+    [yY][eE][sS]|[yY])
+        echo ''
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+
+for line in "$(echo $instances |awk '{print % 3')" ; do
+  echo $line
+done
